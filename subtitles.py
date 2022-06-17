@@ -34,18 +34,23 @@
 
 import sys
 
+debug = 0
+
 if len(sys.argv) != 3:
     print(f"Usage:\nsubtitles.py <interval in millisecs> <offset in millisecs>\ninterval: time between two counts (e.g. between 1 and 2)\noffset: time from the start of the video when the subtitles should start")
     exit(-1)
 
 intervalMs = int(sys.argv[1])
 offsetMs = int(sys.argv[2])
+# For music that speeds up
+tempoChangeCompensation = 1
+tempoChangeCompensationSample = 250
 
 if debug:
     print(f"intervalMS = {intervalMs}")
 
 displayTimeMs = intervalMs - 20 # The time for which the number stays on screen
-MAX_COUNT = 200 # Max subtitle lines to be generated
+MAX_COUNT = 550 # Max subtitle lines to be generated
 
 totalLengthHrs = intervalMs * MAX_COUNT / 1000 / 60 / 60
 
@@ -58,7 +63,9 @@ filePath = './subtitle.srt' # filename and path are hardcoded for now
 file = open(filePath, "w")
 
 for i in range(0, MAX_COUNT):
-    #CONTENT
+    if ((i == tempoChangeCompensationSample) and tempoChangeCompensation):
+        intervalMs -= tempoChangeCompensation
+    
     file.write(str(i+1) + "\n")
 
     ms = offsetMs + (i * intervalMs)
